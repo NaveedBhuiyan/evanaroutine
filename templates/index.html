@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evan's Routine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Weekly Routine</h1>
+
+        <div class="legend">
+            {% for activity, color in colors.items() %}
+            <span class="legend-item">
+                <span class="legend-dot" style="background: {{ color }};"></span>
+                {{ activity }}
+            </span>
+            {% endfor %}
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="time-col">Time</th>
+                        {% for day in days %}
+                        <th class="{% if day == current_day %}current-day{% endif %}">{{ day[:3] }}<span class="day-full">{{ day }}</span></th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in schedule %}
+                    {% set row_idx = loop.index0 %}
+                    <tr>
+                        <td class="time-cell">{{ row.start }}<br><span class="time-end">{{ row.end }}</span></td>
+                        {% for day in days %}
+                        {% set m = merge[(row_idx, day)] %}
+                        {% if m.render %}
+                        {% set activity = row.slots[day] %}
+                        {% set is_current_day = (day == current_day) %}
+                        <td class="slot {% if activity %}filled{% endif %} {% if is_current_day %}current-day-col{% endif %}"
+                            {% if m.rowspan > 1 %}rowspan="{{ m.rowspan }}"{% endif %}
+                            {% if activity and activity in colors %}
+                            style="background: {{ colors[activity] }}; color: #fff;"
+                            {% endif %}>
+                            {% if activity %}
+                            <span class="activity-name">{{ activity }}</span>
+                            <span class="activity-time">{{ m.start }} – {{ m.end }}</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
