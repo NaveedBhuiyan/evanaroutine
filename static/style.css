@@ -52,10 +52,11 @@ h1 {
 
 /* Table wrapper for horizontal scroll on mobile */
 .table-wrapper {
-    overflow-x: auto;
+    overflow: auto;
     -webkit-overflow-scrolling: touch;
     border-radius: 10px;
     border: 1px solid #1e2030;
+    max-height: 85vh;
 }
 
 table {
@@ -68,6 +69,7 @@ table {
 thead th {
     position: sticky;
     top: 0;
+    z-index: 10;
     background: #181a27;
     padding: 0.6rem 0.25rem;
     font-size: 0.8rem;
