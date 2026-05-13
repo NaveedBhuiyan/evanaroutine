@@ -1,5 +1,8 @@
 let schedule = {};
 let dragData = null;
+let touchDragEl = null;
+let touchSourceTd = null;
+let touchMoved = false;
 
 // --- Load & Render ---
 
@@ -90,6 +93,7 @@ function renderTable() {
                 td.draggable = true;
                 td.addEventListener('dragstart', onDragStart);
                 td.addEventListener('dragend', onDragEnd);
+                td.addEventListener('touchstart', onTouchStart, { passive: false });
             }
 
             td.addEventListener('dragover', onDragOver);
@@ -152,6 +156,86 @@ async function moveSlot(srcDay, srcTime, dstDay, dstTime) {
         schedule[srcDay][srcTime] = '';
         render();
     }
+}
+
+// --- Touch Drag & Drop (mobile) ---
+
+function onTouchStart(e) {
+    const td = e.currentTarget;
+    if (!td.classList.contains('filled')) return;
+
+    touchMoved = false;
+    const touch = e.touches[0];
+    const startX = touch.clientX;
+    const startY = touch.clientY;
+
+    dragData = { day: td.dataset.day, time: td.dataset.time };
+    touchSourceTd = td;
+
+    const onTouchMove = (ev) => {
+        const t = ev.touches[0];
+        const dx = Math.abs(t.clientX - startX);
+        const dy = Math.abs(t.clientY - startY);
+
+        if (!touchMoved && (dx > 10 || dy > 10)) {
+            touchMoved = true;
+            // Create floating ghost element
+            touchDragEl = document.createElement('div');
+            touchDragEl.className = 'touch-drag-ghost';
+            touchDragEl.textContent = td.querySelector('.activity-name')?.textContent || '';
+            const color = COLORS[touchDragEl.textContent] || '#555';
+            touchDragEl.style.background = color;
+            document.body.appendChild(touchDragEl);
+            td.classList.add('dragging');
+        }
+
+        if (touchMoved) {
+            ev.preventDefault();
+            touchDragEl.style.left = t.clientX - 40 + 'px';
+            touchDragEl.style.top = t.clientY - 20 + 'px';
+
+            // Highlight drop target
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            const target = document.elementFromPoint(t.clientX, t.clientY);
+            const slot = target?.closest('.slot');
+            if (slot && !slot.classList.contains('filled')) {
+                slot.classList.add('drag-over');
+            }
+        }
+    };
+
+    const onTouchEnd = (ev) => {
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+
+        if (touchDragEl) {
+            touchDragEl.remove();
+            touchDragEl = null;
+        }
+        if (touchSourceTd) {
+            touchSourceTd.classList.remove('dragging');
+        }
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+
+        if (touchMoved && dragData) {
+            const t = ev.changedTouches[0];
+            const target = document.elementFromPoint(t.clientX, t.clientY);
+            const slot = target?.closest('.slot');
+            if (slot && !slot.classList.contains('filled') && slot.dataset.day && slot.dataset.time) {
+                moveSlot(dragData.day, dragData.time, slot.dataset.day, slot.dataset.time);
+            }
+        } else if (!touchMoved && dragData) {
+            // It was a tap, not a drag — open modal
+            openModal(dragData.day, dragData.time);
+        }
+
+        dragData = null;
+        touchSourceTd = null;
+        touchMoved = false;
+    };
+
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+    document.addEventListener('touchend', onTouchEnd);
 }
 
 // --- Modal ---

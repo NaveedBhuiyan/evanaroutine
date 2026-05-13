@@ -2,10 +2,14 @@ import csv
 import json
 import os
 from datetime import datetime
+from functools import wraps
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, session, redirect, url_for
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24).hex())
+
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "default")
 
 BASE_DIR = os.path.dirname(__file__)
 CSV_PATH = os.path.join(BASE_DIR, "Tentative Routine - Sheet2.csv")
@@ -77,7 +81,34 @@ def current_day():
     return day_map.get(datetime.now().weekday(), "")
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get("authenticated"):
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        if request.form.get("password") == APP_PASSWORD:
+            session["authenticated"] = True
+            return redirect(url_for("index"))
+        error = "Wrong password"
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
 @app.route("/")
+@login_required
 def index():
     return render_template(
         "index.html",
@@ -89,11 +120,13 @@ def index():
 
 
 @app.route("/api/schedule")
+@login_required
 def get_schedule():
     return jsonify(load_schedule())
 
 
 @app.route("/api/schedule", methods=["POST"])
+@login_required
 def update_slot():
     data = request.get_json()
     day = data.get("day")
@@ -114,6 +147,7 @@ def update_slot():
 
 
 @app.route("/api/schedule/move", methods=["POST"])
+@login_required
 def move_slot():
     data = request.get_json()
     src_day = data.get("srcDay")
@@ -136,6 +170,7 @@ def move_slot():
 
 
 @app.route("/api/colors")
+@login_required
 def get_colors():
     return jsonify(ACTIVITY_COLORS)
 
