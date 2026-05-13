@@ -214,3 +214,132 @@ td[rowspan] {
     background: #2a2d42;
     border-radius: 3px;
 }
+
+/* Interactive slots */
+.slot {
+    cursor: pointer;
+    user-select: none;
+}
+
+.slot:not(.filled):hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.slot.filled {
+    cursor: grab;
+}
+
+.slot.filled:active {
+    cursor: grabbing;
+}
+
+.slot.dragging {
+    opacity: 0.4;
+}
+
+.slot.drag-over {
+    outline: 2px dashed #4A90D9;
+    outline-offset: -2px;
+    background: rgba(74, 144, 217, 0.12) !important;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+}
+
+.modal {
+    background: #1a1c2e;
+    border: 1px solid #2a2d42;
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 360px;
+}
+
+.modal h3 {
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.modal #modal-info {
+    color: #6a6a80;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.modal input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    background: #0f1117;
+    border: 1px solid #2a2d42;
+    border-radius: 8px;
+    color: #e1e1e6;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.modal input:focus {
+    border-color: #4A90D9;
+}
+
+.modal-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+}
+
+.suggestion {
+    padding: 0.3rem 0.6rem;
+    border: 1.5px solid;
+    border-radius: 6px;
+    background: transparent;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.suggestion:hover, .suggestion.active {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: 0.45rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-cancel {
+    background: #2a2d42;
+    color: #a0a0b0;
+}
+
+.btn-save {
+    background: #4A90D9;
+    color: #fff;
+}
+
+.btn-delete {
+    background: #E74C3C;
+    color: #fff;
+    margin-right: auto;
+}
