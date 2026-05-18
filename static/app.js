@@ -333,12 +333,26 @@ function convertNYtoDhaka() {
     const input = document.getElementById('conv-input').value;
     if (!input) return;
     const [hours, minutes] = input.split(':').map(Number);
-    // Create a date in NY timezone, then read it in Dhaka
-    const now = new Date();
-    const nyDate = new Date(now.toLocaleDateString('en-US', { timeZone: 'America/New_York' }) + ' ' + input);
-    // Get NY offset by comparing
-    const nyStr = nyDate.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit' });
-    const dhakaStr = nyDate.toLocaleString('en-US', { timeZone: 'Asia/Dhaka', hour12: true, hour: '2-digit', minute: '2-digit' });
+    // Build an ISO date string for today with the chosen time, marked as NY
+    // Use a fixed reference date to get NY's UTC offset
+    const ref = new Date();
+    const year = ref.getFullYear();
+    const month = String(ref.getMonth() + 1).padStart(2, '0');
+    const day = String(ref.getDate()).padStart(2, '0');
+    // Create date as UTC, then figure out NY offset to adjust
+    const utcDate = new Date(Date.UTC(year, ref.getMonth(), ref.getDate(), hours, minutes, 0));
+    // Get what hour UTC thinks it is when it's this time in NY
+    const nyNow = new Date(ref.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const utcNow = ref;
+    const nyOffsetMs = utcNow - nyNow;
+    // Adjust: the user typed NY time, so convert to UTC first, then display as Dhaka
+    const asUTC = new Date(utcDate.getTime() + nyOffsetMs);
+    const dhakaStr = asUTC.toLocaleTimeString('en-US', {
+        timeZone: 'Asia/Dhaka',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
     document.getElementById('conv-output').textContent = dhakaStr;
 }
 
