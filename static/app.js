@@ -333,27 +333,15 @@ function convertNYtoDhaka() {
     const input = document.getElementById('conv-input').value;
     if (!input) return;
     const [hours, minutes] = input.split(':').map(Number);
-    // Build an ISO date string for today with the chosen time, marked as NY
-    // Use a fixed reference date to get NY's UTC offset
-    const ref = new Date();
-    const year = ref.getFullYear();
-    const month = String(ref.getMonth() + 1).padStart(2, '0');
-    const day = String(ref.getDate()).padStart(2, '0');
-    // Create date as UTC, then figure out NY offset to adjust
-    const utcDate = new Date(Date.UTC(year, ref.getMonth(), ref.getDate(), hours, minutes, 0));
-    // Get what hour UTC thinks it is when it's this time in NY
-    const nyNow = new Date(ref.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-    const utcNow = ref;
-    const nyOffsetMs = utcNow - nyNow;
-    // Adjust: the user typed NY time, so convert to UTC first, then display as Dhaka
-    const asUTC = new Date(utcDate.getTime() + nyOffsetMs);
-    const dhakaStr = asUTC.toLocaleTimeString('en-US', {
-        timeZone: 'Asia/Dhaka',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    });
-    document.getElementById('conv-output').textContent = dhakaStr;
+    // Dhaka is always 10 hours ahead of New York
+    let dhakaHours = hours + 10;
+    let dhakaMins = minutes;
+    if (dhakaHours >= 24) dhakaHours -= 24;
+    const period = dhakaHours >= 12 ? 'PM' : 'AM';
+    let displayHour = dhakaHours % 12;
+    if (displayHour === 0) displayHour = 12;
+    const displayMin = String(dhakaMins).padStart(2, '0');
+    document.getElementById('conv-output').textContent = `${String(displayHour).padStart(2, '0')}:${displayMin} ${period}`;
 }
 
 if (document.getElementById('clock-ny')) {
