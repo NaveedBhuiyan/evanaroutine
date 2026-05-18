@@ -318,3 +318,33 @@ document.getElementById('modal-input').addEventListener('keydown', (e) => {
 });
 
 loadSchedule();
+
+// --- Timezone Clocks & Converter ---
+
+function updateClocks() {
+    const now = new Date();
+    const nyTime = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const dhakaTime = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Dhaka', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.getElementById('clock-ny').textContent = nyTime;
+    document.getElementById('clock-dhaka').textContent = dhakaTime;
+}
+
+function convertNYtoDhaka() {
+    const input = document.getElementById('conv-input').value;
+    if (!input) return;
+    const [hours, minutes] = input.split(':').map(Number);
+    // Create a date in NY timezone, then read it in Dhaka
+    const now = new Date();
+    const nyDate = new Date(now.toLocaleDateString('en-US', { timeZone: 'America/New_York' }) + ' ' + input);
+    // Get NY offset by comparing
+    const nyStr = nyDate.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit' });
+    const dhakaStr = nyDate.toLocaleString('en-US', { timeZone: 'Asia/Dhaka', hour12: true, hour: '2-digit', minute: '2-digit' });
+    document.getElementById('conv-output').textContent = dhakaStr;
+}
+
+if (document.getElementById('clock-ny')) {
+    updateClocks();
+    setInterval(updateClocks, 1000);
+    document.getElementById('conv-input').addEventListener('input', convertNYtoDhaka);
+    convertNYtoDhaka();
+}

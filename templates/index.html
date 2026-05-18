@@ -7,24 +7,52 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Weekly Routine</h1>
+    <div class="page-layout">
+        <div class="container">
+            <h1>Weekly Routine</h1>
 
-        <div class="legend" id="legend"></div>
+            <div class="legend" id="legend"></div>
 
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="time-col">Time</th>
-                        {% for day in days %}
-                        <th class="{% if day == current_day %}current-day{% endif %}">{{ day[:3] }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody id="schedule-body"></tbody>
-            </table>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="time-col">Time</th>
+                            {% for day in days %}
+                            <th class="{% if day == current_day %}current-day{% endif %}">{{ day[:3] }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-body"></tbody>
+                </table>
+            </div>
         </div>
+
+        <aside class="sidebar">
+            <div class="clock-panel">
+                <h2>Clocks</h2>
+                <div class="clock-card">
+                    <span class="clock-label">New York</span>
+                    <span class="clock-time" id="clock-ny">--:--:-- --</span>
+                </div>
+                <div class="clock-card">
+                    <span class="clock-label">Dhaka</span>
+                    <span class="clock-time" id="clock-dhaka">--:--:-- --</span>
+                </div>
+            </div>
+
+            <div class="converter-panel">
+                <h2>NY → Dhaka Converter</h2>
+                <div class="converter-input-group">
+                    <label for="conv-input">New York Time</label>
+                    <input type="time" id="conv-input" value="12:00" />
+                </div>
+                <div class="converter-result">
+                    <span class="converter-label">Dhaka Time</span>
+                    <span class="converter-time" id="conv-output">--:-- --</span>
+                </div>
+            </div>
+        </aside>
     </div>
 
     <!-- Modal for creating/editing -->
